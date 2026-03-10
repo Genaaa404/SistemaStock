@@ -1,0 +1,68 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">Usuarios</h1>
+    <p class="page-subtitle">Gestión de accesos al sistema</p>
+  </div>
+  <button class="btn btn-primary" onclick="document.getElementById('modal-usr').classList.add('open')">+ Nuevo usuario</button>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Creado</th></tr></thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td><strong>{{ u.username }}</strong></td>
+          <td>{{ u.nombre or '—' }}</td>
+          <td><span class="badge {% if u.rol == 'admin' %}badge-warn{% else %}badge-ok{% endif %}">{{ u.rol }}</span></td>
+          <td><span class="badge {% if u.activo %}badge-ok{% else %}badge-low{% endif %}">{% if u.activo %}Activo{% else %}Inactivo{% endif %}</span></td>
+          <td style="color:var(--text-muted)">{{ u.creado_en.strftime('%d/%m/%Y') if u.creado_en else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-usr">
+  <div class="modal">
+    <div class="modal-title">Nuevo usuario</div>
+    <form method="post" action="{{ url_for('nuevo_usuario') }}">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Username *</label>
+          <input type="text" name="username" required>
+        </div>
+        <div class="form-group">
+          <label>Contraseña *</label>
+          <input type="password" name="password" required>
+        </div>
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" name="nombre">
+        </div>
+        <div class="form-group">
+          <label>Rol</label>
+          <select name="rol">
+            <option value="empleado">Empleado</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-usr').classList.remove('open')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Crear</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target === o) o.classList.remove('open'); });
+});
+</script>
+{% endblock %}

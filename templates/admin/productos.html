@@ -1,0 +1,160 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Productos{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">Productos</h1>
+    <p class="page-subtitle">Gestión de inventario</p>
+  </div>
+  <button class="btn btn-primary" onclick="document.getElementById('modal-nuevo').classList.add('open')">+ Nuevo producto</button>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Nombre</th><th>Categoría</th><th>Stock</th><th>Mínimo</th><th>Unidad</th><th>Precio</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for p in productos %}
+        <tr {% if p.stock <= p.stock_minimo %}class="row-alert"{% endif %}>
+          <td><strong>{{ p.nombre }}</strong>{% if p.descripcion %}<br><small style="color:var(--text-muted)">{{ p.descripcion[:60] }}</small>{% endif %}</td>
+          <td>{{ p.categoria_nombre or '—' }}</td>
+          <td>
+            {% if p.stock == 0 %}
+              <span class="badge badge-low">0</span>
+            {% elif p.stock <= p.stock_minimo %}
+              <span class="badge badge-warn">{{ p.stock }}</span>
+            {% else %}
+              <strong>{{ p.stock }}</strong>
+            {% endif %}
+          </td>
+          <td style="color:var(--text-muted)">{{ p.stock_minimo }}</td>
+          <td>{{ p.unidad }}</td>
+          <td>${{ "%.2f"|format(p.precio) }}</td>
+          <td>
+            {% if p.stock == 0 %}<span class="badge badge-low">Sin stock</span>
+            {% elif p.stock <= p.stock_minimo %}<span class="badge badge-warn">Bajo</span>
+            {% else %}<span class="badge badge-ok">OK</span>{% endif %}
+          </td>
+          <td>
+            <button class="btn btn-sm btn-secondary" onclick="openEdit({{ p|tojson }})">Editar</button>
+            <form method="post" action="{{ url_for('eliminar_producto', id=p.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar este producto?')">
+              <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Nuevo -->
+<div class="modal-overlay" id="modal-nuevo">
+  <div class="modal">
+    <div class="modal-title">Nuevo producto</div>
+    <form method="post" action="{{ url_for('nuevo_producto') }}">
+      <div class="form-grid">
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Nombre *</label>
+          <input type="text" name="nombre" required>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Descripción</label>
+          <input type="text" name="descripcion">
+        </div>
+        <div class="form-group">
+          <label>Categoría</label>
+          <select name="categoria_id">
+            <option value="">Sin categoría</option>
+            {% for c in categorias %}
+              <option value="{{ c.id }}">{{ c.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Unidad</label>
+          <input type="text" name="unidad" value="pieza">
+        </div>
+        <div class="form-group">
+          <label>Stock inicial *</label>
+          <input type="number" name="stock" value="0" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Stock mínimo *</label>
+          <input type="number" name="stock_minimo" value="5" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Precio</label>
+          <input type="number" name="precio" value="0" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-nuevo').classList.remove('open')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal-overlay" id="modal-editar">
+  <div class="modal">
+    <div class="modal-title">Editar producto</div>
+    <form method="post" id="form-editar">
+      <div class="form-grid">
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Nombre *</label>
+          <input type="text" name="nombre" id="e-nombre" required>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Descripción</label>
+          <input type="text" name="descripcion" id="e-descripcion">
+        </div>
+        <div class="form-group">
+          <label>Categoría</label>
+          <select name="categoria_id" id="e-categoria">
+            <option value="">Sin categoría</option>
+            {% for c in categorias %}
+              <option value="{{ c.id }}">{{ c.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Unidad</label>
+          <input type="text" name="unidad" id="e-unidad">
+        </div>
+        <div class="form-group">
+          <label>Stock mínimo</label>
+          <input type="number" name="stock_minimo" id="e-stock_minimo" min="0">
+        </div>
+        <div class="form-group">
+          <label>Precio</label>
+          <input type="number" name="precio" id="e-precio" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-editar').classList.remove('open')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openEdit(p) {
+  document.getElementById('form-editar').action = '/admin/productos/editar/' + p.id;
+  document.getElementById('e-nombre').value = p.nombre;
+  document.getElementById('e-descripcion').value = p.descripcion || '';
+  document.getElementById('e-categoria').value = p.categoria_id || '';
+  document.getElementById('e-unidad').value = p.unidad;
+  document.getElementById('e-stock_minimo').value = p.stock_minimo;
+  document.getElementById('e-precio').value = p.precio;
+  document.getElementById('modal-editar').classList.add('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target === o) o.classList.remove('open'); });
+});
+</script>
+{% endblock %}

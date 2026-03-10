@@ -1,0 +1,79 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Dashboard</h1>
+  <p class="page-subtitle">Resumen general del almacén</p>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Productos activos</div>
+    <div class="stat-value">{{ stats.total_productos }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Unidades en stock</div>
+    <div class="stat-value">{{ stats.total_stock }}</div>
+  </div>
+  <div class="stat-card {% if stats.alertas > 0 %}alert-card{% endif %}">
+    <div class="stat-label">Alertas stock bajo</div>
+    <div class="stat-value">{{ stats.alertas }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Categorías</div>
+    <div class="stat-value">{{ stats.categorias }}</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">⚠ Stock bajo</span>
+      <a href="{{ url_for('admin_productos') }}" class="btn btn-sm btn-secondary">Ver todos</a>
+    </div>
+    {% if alertas %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Producto</th><th>Categoría</th><th>Stock</th><th>Mínimo</th></tr></thead>
+        <tbody>
+          {% for a in alertas %}
+          <tr>
+            <td>{{ a.nombre }}</td>
+            <td>{{ a.categoria or '—' }}</td>
+            <td><span class="badge {% if a.stock == 0 %}badge-low{% else %}badge-warn{% endif %}">{{ a.stock }}</span></td>
+            <td style="color:var(--text-muted)">{{ a.stock_minimo }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="card-body" style="color:var(--text-muted);font-size:.875rem;">✓ Todo el stock está en niveles adecuados.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">⇄ Últimos movimientos</span>
+      <a href="{{ url_for('admin_movimientos') }}" class="btn btn-sm btn-secondary">Ver todos</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Producto</th><th>Tipo</th><th>Cant.</th><th>Por</th></tr></thead>
+        <tbody>
+          {% for m in movimientos %}
+          <tr>
+            <td>{{ m.producto }}</td>
+            <td><span class="badge {% if m.tipo == 'entrada' %}badge-in{% else %}badge-out{% endif %}">{{ m.tipo }}</span></td>
+            <td>{{ m.cantidad }}</td>
+            <td style="color:var(--text-muted)">{{ m.username }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

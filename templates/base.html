@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Almacén{% endblock %} — StockHouse</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a href="{{ url_for('publico') }}" class="topbar-brand">Stock<span>House</span></a>
+    <nav class="topbar-nav">
+      <a href="{{ url_for('publico') }}" {% if request.endpoint == 'publico' %}class="active"{% endif %}>Catálogo</a>
+      {% if session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}" {% if request.endpoint == 'admin_dashboard' %}class="active"{% endif %}>Panel Admin</a>
+        <a href="{{ url_for('logout') }}" class="btn-login">Salir</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn-login">Admin</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  {% block body %}{% endblock %}
+</body>
+</html>

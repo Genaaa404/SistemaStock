@@ -1,0 +1,60 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Categorías{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">Categorías</h1>
+    <p class="page-subtitle">Organización del inventario</p>
+  </div>
+  <button class="btn btn-primary" onclick="document.getElementById('modal-cat').classList.add('open')">+ Nueva categoría</button>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nombre</th><th>Descripción</th><th>Productos</th><th></th></tr></thead>
+      <tbody>
+        {% for c in categorias %}
+        <tr>
+          <td><strong>{{ c.nombre }}</strong></td>
+          <td style="color:var(--text-muted)">{{ c.descripcion or '—' }}</td>
+          <td><span class="badge badge-ok">{{ c.total_productos }}</span></td>
+          <td>
+            <form method="post" action="{{ url_for('eliminar_categoria', id=c.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar esta categoría?')">
+              <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-cat">
+  <div class="modal">
+    <div class="modal-title">Nueva categoría</div>
+    <form method="post" action="{{ url_for('nueva_categoria') }}">
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" name="nombre" required>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <input type="text" name="descripcion">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-cat').classList.remove('open')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target === o) o.classList.remove('open'); });
+});
+</script>
+{% endblock %}

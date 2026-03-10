@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Catálogo{% endblock %}
+{% block body %}
+<div class="hero">
+  <h1>Inventario del Almacén</h1>
+  <p>Consulta la disponibilidad de productos en tiempo real.</p>
+</div>
+
+<div class="filters-bar">
+  <form method="get" action="{{ url_for('publico') }}" style="display:flex;gap:.75rem;flex:1;flex-wrap:wrap;align-items:center;">
+    <div class="search-input-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar producto…">
+    </div>
+    <select name="categoria" style="min-width:160px;">
+      <option value="">Todas las categorías</option>
+      {% for c in categorias %}
+        <option value="{{ c.id }}" {% if categoria_filter == c.id|string %}selected{% endif %}>{{ c.nombre }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+    {% if busqueda or categoria_filter %}
+      <a href="{{ url_for('publico') }}" class="btn btn-secondary">Limpiar</a>
+    {% endif %}
+  </form>
+</div>
+
+{% if productos %}
+<div class="products-grid">
+  {% for p in productos %}
+  <div class="product-card">
+    <div class="product-cat">{{ p.categoria_nombre or '—' }}</div>
+    <div class="product-name">{{ p.nombre }}</div>
+    {% if p.descripcion %}
+      <div class="product-desc">{{ p.descripcion }}</div>
+    {% endif %}
+    <div class="product-footer">
+      <div class="product-stock">
+        <strong>{{ p.stock }}</strong> {{ p.unidad }}s
+      </div>
+      {% if p.stock == 0 %}
+        <span class="badge badge-low">Sin stock</span>
+      {% elif p.stock <= p.stock_minimo %}
+        <span class="badge badge-warn">Stock bajo</span>
+      {% else %}
+        <span class="badge badge-ok">Disponible</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align:center;padding:4rem 2rem;color:var(--text-muted);">
+  <div style="font-size:2.5rem;margin-bottom:.75rem;">◈</div>
+  <p>No se encontraron productos.</p>
+</div>
+{% endif %}
+{% endblock %}

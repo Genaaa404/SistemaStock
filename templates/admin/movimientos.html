@@ -1,0 +1,77 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Movimientos{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <h1 class="page-title">Movimientos</h1>
+    <p class="page-subtitle">Registro de entradas y salidas</p>
+  </div>
+  <button class="btn btn-primary" onclick="document.getElementById('modal-mov').classList.add('open')">+ Nuevo movimiento</button>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Usuario</th><th>Nota</th></tr>
+      </thead>
+      <tbody>
+        {% for m in movimientos %}
+        <tr>
+          <td style="color:var(--text-muted);white-space:nowrap">{{ m.fecha.strftime('%d/%m/%Y %H:%M') if m.fecha else '—' }}</td>
+          <td><strong>{{ m.producto }}</strong></td>
+          <td><span class="badge {% if m.tipo == 'entrada' %}badge-in{% else %}badge-out{% endif %}">{{ m.tipo }}</span></td>
+          <td>{{ m.cantidad }}</td>
+          <td>{{ m.username }}</td>
+          <td style="color:var(--text-muted)">{{ m.nota or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-mov">
+  <div class="modal">
+    <div class="modal-title">Registrar movimiento</div>
+    <form method="post" action="{{ url_for('nuevo_movimiento') }}">
+      <div class="form-grid">
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Producto *</label>
+          <select name="producto_id" required>
+            <option value="">Seleccionar…</option>
+            {% for p in productos %}
+              <option value="{{ p.id }}">{{ p.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tipo *</label>
+          <select name="tipo" required>
+            <option value="entrada">Entrada ↓</option>
+            <option value="salida">Salida ↑</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cantidad *</label>
+          <input type="number" name="cantidad" min="1" required>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Nota</label>
+          <input type="text" name="nota" placeholder="Opcional…">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-mov').classList.remove('open')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Registrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target === o) o.classList.remove('open'); });
+});
+</script>
+{% endblock %}
