@@ -61,7 +61,3 @@ La app estará en `http://localhost:5000`
 |----------|-----------|
 | Usuario  | `admin`   |
 | Password | `admin123`|
-
-- Usar variables de entorno para credenciales
-- Activar HTTPS
-- Cambiar `secret_key` a un valor seguro aleatorio
