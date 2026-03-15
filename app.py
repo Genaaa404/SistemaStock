@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, redirect, url_for, session, request, flash, jsonify
 from functools import wraps
 import mysql.connector
@@ -7,10 +8,11 @@ app = Flask(__name__)
 app.secret_key = 'almacen_secret_key_2024'
 
 DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '1234',
-    'database': 'almacen_db'
+    'host':     os.environ.get('DB_HOST', 'localhost'),
+    'user':     os.environ.get('DB_USER', 'root'),
+    'password': os.environ.get('DB_PASSWORD', ''),
+    'database': os.environ.get('DB_NAME', 'almacen_db'),
+    'port':     int(os.environ.get('DB_PORT', 3306))
 }
 
 def get_db():
@@ -333,4 +335,4 @@ def nuevo_usuario():
     return redirect(url_for('admin_usuarios'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
