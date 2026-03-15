@@ -10,7 +10,7 @@ app.secret_key = 'almacen_secret_key_2024'
 DB_CONFIG = {
     'host':     os.environ.get('DB_HOST', 'localhost'),
     'user':     os.environ.get('DB_USER', 'root'),
-    'password': os.environ.get('DB_PASSWORD', ''),
+    'password': os.environ.get('DB_PASSWORD', 'DIgXttLUIFuUccJrmBqSnlUCTywJgaHN'),
     'database': os.environ.get('DB_NAME', 'almacen_db'),
     'port':     int(os.environ.get('DB_PORT', 3306))
 }
