@@ -61,37 +61,3 @@ La app estará en `http://localhost:5000`
 |----------|-----------|
 | Usuario  | `admin`   |
 | Password | `admin123`|
-
-## Rutas
-
-| Ruta                          | Descripción            |
-|-------------------------------|------------------------|
-| `/`                           | Vista pública del stock |
-| `/buscar?q=xxx&categoria=1`   | Búsqueda y filtros     |
-| `/admin/login`                | Login administrador    |
-| `/admin`                      | Dashboard              |
-| `/admin/productos`            | Gestión de productos   |
-| `/admin/productos/nuevo`      | Crear producto         |
-| `/admin/categorias`           | Gestión de categorías  |
-
-## Funcionalidades
-
-### Panel público
-- Grilla de productos con stock en tiempo real
-- Búsqueda por nombre, código o descripción
-- Filtro por categoría
-- Indicador visual de stock (OK / Bajo / Crítico)
-
-### Panel administrador
-- Dashboard con estadísticas y alertas
-- CRUD completo de productos
-- Ajuste rápido de stock (entrada/salida)
-- Gestión de categorías
-- Acceso protegido por sesión
-
-## Seguridad (para producción)
-
-- Hashear contraseñas con `werkzeug.security`
-- Usar variables de entorno para credenciales
-- Activar HTTPS
-- Cambiar `secret_key` a un valor seguro aleatorio
